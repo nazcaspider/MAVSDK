@@ -469,6 +469,13 @@ MissionRaw::MissionProgress MissionRawImpl::mission_progress()
 
 void MissionRawImpl::subscribe_mission_changed(MissionRaw::MissionChangedCallback callback)
 {
+    // Listening for MISSION_ACKs can work, however, it is not guaranteed that these acks
+    // will be received. This should be specced properly, hence it's not in Pure mode.
+    if (_parent->compatibility_mode() == System::CompatibilityMode::Pure) {
+        LogErr() << "mission changed subscription not supported";
+        return;
+    }
+
     std::lock_guard<std::mutex> lock(_mission_changed.mutex);
     _mission_changed.callback = callback;
 }
